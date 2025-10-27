@@ -1,0 +1,14 @@
+Exercícios de funções - Migrando o programa gerador de frequências para array:
+
+Adapte o sketch "Gerador de onda quadrada com funções", que se encontra no Tinkercad, de forma que:
+- Com o botão select do shield de display Arduino pressionado, o usuário possa escolher qual freqência desejada entre:
+Tab de frequências
+ Botão Periodo Frequência
+ Left    5s      0,2Hz
+ Up    1s       1Hz
+ Down   500ms     2Hz
+ Right    2ms      500Hz
+
+Use os períodos acima para determinar as frequências armazenados e salve-os num array chamado periodos.
+Faça com que cada vez que o botão select for pressionado, o display mostre a tabela das frequências e oriente qual botão deve ser pressionado para ativá-la.
+

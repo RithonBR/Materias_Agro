@@ -1,0 +1,336 @@
+---
+title: "6. Mutação"
+editor_options: 
+  chunk_output_type: console
+---
+
+# Diretório
+
+```{r include = FALSE}
+knitr::opts_knit$set(root.dir = "D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+```{r eval=FALSE}
+# meu computador (mudar de acordo)
+setwd("D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+# Pacotes e dados
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(metan)
+
+# dados
+maize <- 
+  import("examples_data.xlsx",
+         sheet = "maize",
+         setclass = "tbl")
+
+```
+
+# Geral
+
+![Fonte: https://dplyr.tidyverse.org/index.html](figs/mutate.png)
+
+A função [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) é utilizada quando se deseja adicionar novas variáveis no conjunto de dados. Estas variáveis são funções de variáveis existentes. Como exemplo, vamos criar uma nova variável chamada `CD` no conjunto de dados `maize`, qual será a razão entre `CESP` e `DIES`. Note que a função adiciona a nova variável após a última variável origina e mantém todas as demais. Você pode controlar a posição da nova variável criada utilizando os argumentos `.before` e `.after` (assim como na função `relocate()`) e quais variáveis são mantidas utilizando o argumento `.keep`.
+
+```{r}
+# padrão: nova variável inserida na última posição
+maize |>
+  mutate(CD = CESP/DIES)
+# posição da nova variável
+maize |> mutate(CD = CESP/DIES, 
+                 .after = DIES)
+
+
+
+#######################################################
+# mantém somente as utilizadas no cálculo
+maize |>
+  mutate(CD = CESP/DIES,
+                CD_quad = CD ^2,
+                 .keep = "used")
+# mantém as não utilizadas
+maize |> mutate(CD = CESP/DIES,
+                 .keep = "unused")
+# mantém somente a variável criada
+maize |> mutate(CD = CESP/DIES,
+                 .keep = "none")
+########################################################
+```
+
+# Mutação por grupos
+
+[![](figs/group_by.png){fig-alt="Fonte: https://dplyr.tidyverse.org/index.html"}](https://dplyr.tidyverse.org/index.html)
+
+A função `group_by()` pode ser utilizada para realizar mutação dentro de cada nível de uma ou mais variáveis categóricas. Para este exemplo, vamos criar uma variável (rank) que será o rankeamento das observações dentro de cada híbrido com base na MGRA (em ordem decrescente).
+
+```{r}
+hib <- 
+maize |> 
+  # group_by(HIB, AMB) |>
+  mutate(rank = rank(desc(MGRA)))
+
+
+```
+
+::: callout-tip
+Você pode dizer o que o seguinte código retornará?
+
+```{r eval=FALSE}
+maize |> 
+  group_by(HIB) |> 
+  slice_max(MGRA, n = 2)
+```
+:::
+
+Em alguns casos, um agrupamento específico onde cada linha é considerada um grupo pode ser útil. Isto pode ser realizado com a função `rowwise()`. Como `group_by()`, `rowwise()` não faz nada sozinha; apenas muda a forma como os outros verbos (ex., mutate, summarise) funcionam. Por exemplo, compare os resultados de `mutate()` no código a seguir:
+
+```{r}
+df <- tibble(x = 1:2, y = 3:4, z = 5:6)
+# sem rowise()
+df |> mutate(m = sum(c(x, y, z)))
+# com rowise()
+df |>
+  rowwise() |> 
+  mutate(soma = sum(c(x, y, z)))
+
+
+# mesmo resultado
+# utilizando semântica tidyselect 
+df |>
+  rowwise() |> 
+  mutate(soma = sum(c_across(1:3)))
+
+```
+
+
+{{< video https://www.youtube.com/embed/HEtbubQI4_U >}}
+
+
+# Mutação de várias variáveis
+
+![Fonte: https://dplyr.tidyverse.org/reference/across.html](figs/across.png)
+
+Em alguns casos, deseja-se aplicar a mesma função de mutação (ou resumo) à várias variáveis. A função [`across()`](https://dplyr.tidyverse.org/reference/across.html) facilita a aplicação da mesma transformação a várias colunas, permitindo que você use a semântica `select()` dentro de funções como `summarise()` e `mutate()`. Como exemplo de aplicação, vamos criar uma função para rescalar uma variável para uma amplitude 0-1 e aplicar essa função à todas as colunas numéricas do conjunto `maize`.
+
+```{r}
+# função para dividir cada valor por 2
+# intervalo de 0 a 1
+divid2 <- function(x) {
+  x / 2
+}
+
+# aplica a função divid2() a todas as colunas numéricas
+maize |> mutate(across(where(is.numeric), divid2))
+
+# aplica a função divid2() para algumas colunas
+maize |> mutate(across(MGRA:NGRA, divid2))
+
+
+```
+
+Também é possível utilizar a semântica `select()` dentro de `across()`. Isso significa que *select helpers* podem ser utilizados. No exemplo abaixo apenas as variáveis que contém `"_PLANT"` são mutadas, sendo que os valores destas variáveis são divididos por 2.
+
+```{r}
+# usando select helpers
+# divide o valor da variável pela metade
+# atribui um sufixo para as novas variáveis
+# seleciona apenas as utilizadas
+maize |>
+  mutate(across(contains("_PLANT"), \(x){x / 2},
+                .names = "{.col}_metade"),
+         .after = AIES_PLANT,
+         .keep = "used")
+```
+
+::: callout-tip
+Note que no exemplo anterior não foi utilizado uma função externa para dividir os valores das variáveis que contém o sufixo "\_PLANT", mas sim uma expressão (`~.x / 2`). Esta notação é conhecida como *lambda estilo purr*, começando com um til `~` e usando `.x` para se referir a cada coluna individual que foi selecionada no argumento .`cols`.
+
+Note como o mesmo resultado anterior pode ser obtido utilizando a função `divide2()`
+
+```{r}
+divide2 <- function(x){
+  x / 2
+}
+
+maize |>
+  mutate(across(contains("_PLANT"), divide2,
+                .names = "{.col}_metade"),
+         .after = AIES_PLANT,
+         .keep = "used")
+```
+:::
+
+
+{{< video https://www.youtube.com/embed/efPJSOKTvA8 >}}
+
+
+
+# Mutação condicional (Avançado)
+
+É muito comum comum que condicionantes sejam necessárias quando alguma nova variável for criada. Abaixo, um pequeno exemplo contendo notas de 10 alunos é utilizado.
+
+```{r}
+set.seed(5)
+notas <- 
+  data.frame(aluno = paste0("Aluno", 1:10),
+             nota = runif(10, 3, 10) |> round(1))
+notas
+```
+
+Os objetivos aqui são:
+
+1.  Criar uma nova variável em `notas` contendo a classe que tal aluno foi classificado dependendo de sua nota, com as seguintes condições:
+    -   Nota menor que 4: **reprovado**
+    -   Nota de 4 a menos que 7: **exame**
+    -   Nota igual ou maior que 7: **aprovado**
+2.  Ordenar as notas em ordem decrescente (do maior para o menor).
+
+## ifelse() com R base
+
+A função `ifelse()` retorna um valor com a mesma forma de `test` que é preenchido com elementos selecionados de `yes` ou `no`, dependendo se o elemento de `test` é `TRUE` ou `FALSE`. Para criação da nova coluna baseado nas notas em `notas`, utiliza-se a seguinte abordagem. Note que como temos três classes (aprovado, reprovado ou exame) e `ifelse()` somente retorna duas dependendo se o teste é `TRUE` ou `FALSE`, precisamos aninhar `ifelse()`s.
+
+```{r}
+classe <- 
+  transform(notas,
+            condicao = ifelse(nota < 4,
+                           yes = "reprovado", 
+                           no = ifelse(nota >= 4 & nota < 7,
+                                       yes = "exame",
+                                       no = "aprovado")))
+classe[order(classe$nota, decreasing = TRUE), ]
+```
+
+## case_when() com dplyr
+
+`case_when()` pode ser vista como uma versão vetorizada de `ifelse()` que permite que você avalie várias instruções. Se nenhum caso corresponder, `NA` será retornado. Esta função é particularmente útil dentro da função `mutate()` quando você quer criar uma nova variável que depende de uma combinação complexa de variáveis existentes.
+
+A função é baseada em uma sequência de fórmulas de dois lados. O lado esquerdo (LHS) determina o teste; O lado direito (RHS) fornece o valor de substituição.
+
+```{r}
+notas |> 
+  mutate(condicao = case_when(
+    nota < 4 ~ "reprovado",
+    between(nota, 4, 6.99999999) ~ "exame", # mesmo que nota >= 4 & nota < 7
+    TRUE ~ "aprovado" # TRUE: o que não foi incluso nas duas avaliações anteriores
+  )) |> 
+  arrange(desc(nota))
+
+```
+
+Neste exemplo, o conjunto de dados `maize` é utilizado para mostrar como uma variável qualitativa nominal pode ser criada utilizando a função `case_when()`. A nova variável será criada dependendo dos valores de `APLA`, `AIES` ou `CESP`. Ao agrupar pela nova variável categórica criada e utilizar a função `slice_sample()`, um exemplo de cada nível é amostrado aleatoriamente.
+
+```{r}
+set.seed(10)
+
+maize |> 
+  mutate(
+    CASO = case_when(
+      MGRA > 280 | APLA_PLANT < 1.3 | NGRA > 820 ~  "Selecionar",
+      APLA_PLANT > 2.3 ~ "Alto",
+      MGRA < 130 ~ "Pouco produtivo",
+      TRUE ~ "Outro"
+    )
+  ) |> 
+  group_by(CASO) |> 
+  slice_sample(n = 1)
+
+t <- 
+maize |> 
+  mutate(test = case_when(MGRA > 280 ~ MGRA *1000,
+                          TRUE ~ MGRA))
+
+```
+
+{{< video https://www.youtube.com/embed/VEz2x7yL2BA >}}
+
+
+::: callout-note
+## Abordagem R base
+
+O seguinte exemplo realiza o mesmo procedimento de criação da variável categórica utilizando as funções R base `transform()` e `ifelse()`.
+
+```{r}
+milho2 <- 
+transform(maize, 
+          CASO = ifelse(MGRA > 280 | APLA_PLANT < 1.3 | NGRA > 820, "Selecionar",
+                        ifelse(APLA_PLANT > 2.3, "Alto",
+                               ifelse(MGRA < 130, "Pouco produtivo",
+                                      "Outro"))))
+
+# cria uma lista onde cada elemento é um nível de CASO
+casos <- split(milho2, milho2$CASO)
+
+
+# percorre a lista e amostra uma linha aleatória de cada uma
+# junta com rbind()
+
+set.seed(10)
+do.call(rbind,
+  lapply(casos, function(x){
+    x[sample(nrow(x), 1), ]
+  })
+)
+
+```
+:::
+
+## Exemplo de aplicação
+::: callout-important
+
+## Cálculo de Graus-dia (GD)
+
+Segundo Ometto (1981)[^1], existe uma temperatura mínima (Tm, ºC) para acionar os dispositivos metabólicos da planta, que é denominada de temperatura basal inferior (Tb, ºC). Somente acima desta temperatura a planta pode se desenvolver. O mesmo autor ressalta, contudo, que a planta também possui uma temperatura basal superior (TB, ºC), acima da qual há um estancamento das atividades metabólicas, prejudicando seu desenvolvimento.
+
+O método de Arnold (1959)[^2] considera somente a Tb no cálculo dos graus-dia (GD). Neste método, o GD é calculado como a diferença entre entre a temperatura média diária e a temperatura basal inferior, ou seja
+
+$$
+GD = \frac{TM + Tm}{2} - Tb
+$$ O método proposto por Ometto (1981), considera a Tb e a TB no cálculo dos graus dia. Neste método, a soma térmica apresenta cinco condicionantes, cada uma com determinada equação (Equações 2 a 6) para cálculo de GD:
+
+$$
+\begin{aligned}&\mathrm{TB}>\mathrm{TM}>\mathrm{Tm}>\mathrm{Tb} \quad \mathrm{GD}=\frac{\mathrm{TM}-\mathrm{Tm}}{2}+\mathrm{Tm}-\mathrm{Tb}, \\&\mathrm{TB}>\mathrm{TM}>\mathrm{Tb}>\mathrm{Tm} \quad \mathrm{GD}=\frac{(\mathrm{TM}-\mathrm{Tb})^2}{2(\mathrm{TM}-\mathrm{Tm})}, \\&\mathrm{TB}>\mathrm{Tb}>\mathrm{TM}>\mathrm{Tm} \quad \mathrm{GD}=0, \\&\mathrm{TM}>\mathrm{TB}>\mathrm{Tm}>\mathrm{Tb} \\&\mathrm{GD}=\frac{2(\mathrm{TM}-\mathrm{Tm})(\mathrm{Tm}-\mathrm{Tb})+(\mathrm{TM}-\mathrm{Tm})^2-(\mathrm{TM}-\mathrm{TB})}{2(\mathrm{TM}-\mathrm{Tm})}, \\&\mathrm{TM}>\mathrm{TB}>\mathrm{Tb}>\mathrm{Tm} \quad \mathrm{GD}=\frac{1}{2} . \frac{(\mathrm{TM}-\mathrm{Tb})^2-(\mathrm{TM}-\mathrm{TB})^2}{\mathrm{TM}-\mathrm{Tm}},\end{aligned}
+$$
+
+Como exemplo motivacional,Os dados contidos em `estacao_fazenda.csv` contém informações de variáveis climáticas obtidas em sensores automáticos de uma estação meteorológica localizada na Fazenda Experimental da Ressacada (UFSC). Os dados são em escala horária, obtidos do dia 01/01/2022 a 28/11/2022, totalizando 7957 observações.
+
+```{r}
+#| message: false
+#| warning: false
+
+
+library(lubridate) # trabalhar com datas
+df_estacao <-  
+  import("estacao_fazenda.csv", setclass = "tbl") |> 
+  mutate(dia = dmy(dia))
+df_estacao
+```
+
+Nestes dados, `tmax` é a temperatura máxima (TM) e `tmin` é a temperatura mínima (Tm).
+
+**Considerando os dados apresentados**
+
+1.  Crie um conjunto de dados chamado `df_temps` contendo, para cada dia, a temperatura máxima como sendo a máxima das máximas e a temperatura mínima como sendo a mínima das mínimas. Nomeie as colunas da seguinte forma:
+    -   `dia`: o dia;
+
+    -   `tmin`: temperatura mínima;
+
+    -   `tmax`: temperatura máxima.
+2.  Crie uma função chamada `gd_arnold()` para calcular o grau-dia pelo método de Arnold (1959);
+3.  Crie uma função chamada `gd_ometto()` para calcular o grau-dia pelo método de Ometto (1981);
+4.  Considerando uma cultura com TB = 32 e Tb = 12, calcule
+    -   O grau-dia considerando o método de Arnold (1959)
+
+    -   O grau-dia considerando o método de Ometto (1981)
+5.  Realize uma mutação do conjunto `df_temps` incluindo
+    -   Duas novas colunas (`gd_arnold` e `gd_ometto`), contendo os graus-dia calculados pelos métodos de Arnold (1959) e Ometto (1981), respectivamente. OBS. Para essa mutação, utilize `rowise()` para que a checagem de temperaturas máximas e mínimas dentro de `mutate()` seja realizada em de cada dia (não entre os dias).
+
+    -   Duas novas colunas `gd_arnold_ac` e `gd_ometto_ac` contendo os graus-dia acumulados em cada dia do período dos dados.
+:::
+
+[^1]: OMETTO, J. C. Bioclimatologia vegetal. São Paulo: Agronômica Ceres 1981. 440p.
+
+[^2]: ARNOLD, C. Y. The determination and significance of the base temperature in a linear heat unit system. Proceedings of the American Society for Horticultural Science, Alexandria, v. 74, n.1 p. 430-445, 1959

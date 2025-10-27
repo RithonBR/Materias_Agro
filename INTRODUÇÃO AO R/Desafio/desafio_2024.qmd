@@ -1,0 +1,140 @@
+---
+title: "Desafio R 2024"
+format: html
+editor: visual
+---
+
+# Contexto
+
+As queimadas florestais contribuem significativamente para as emissões globais de CO2, um dos principais gases responsáveis pelo aquecimento global.
+
+O [FAOSTAT](https://www.fao.org/faostat/en/#data) é a principal base de dados estatísticos da Organização das Nações Unidas para a Alimentação e a Agricultura (FAO). Ele oferece acesso a uma vasta gama de informações sobre agricultura, silvicultura, pesca, uso da terra, emissões de gases de efeito estufa, produção de alimentos e muitos outros tópicos relacionados à alimentação e agricultura global.
+
+# Descrição dos Conjuntos de Dados para o Desafio
+
+Os dois conjuntos de dados que você forneceu (um em formato CSV e outro em Excel) contêm informações de emissões de CO2 relacionadas a florestas por país e ano. Aqui está uma descrição geral dos dados:
+
+-   `FAOSTAT_CO2.xlsx` Area: O nome do país ou região. Domain: O domínio relacionado às emissões, que é "Emissions" (emissões). Formations: O tipo de floresta (por exemplo, "Humid tropical forest" ou "Other forest"). Unit: A unidade de medida (quilotoneladas). Anos de 2012 a 2022: Cada coluna representa os valores de emissões de CO2 para um determinado ano.
+
+-   `Burned_Area.csv` Area: O nome do país ou região. Domain: O domínio relacionado às emissões, que é "Emissions" (emissões). Formation: O tipo de floresta (por exemplo, "Humid tropical forest" ou "Other forest"). Unit: A unidade de medida (Hectares). Value: A área queimada
+
+# Descrição das necessidades
+
+1)  Quanto de área queimada os países tem por cada formação vegetal? Existe muita diferença (Variação) entre as formações vegetais? Calcule o total e os valores máximos e mínimos de áreas queimadas no globo nos anos de 2012 e 2022.
+
+2)  Quais são as duas formações vegetais que mais tiveram área queimada no planeta terra. Elabore uma hipótese para explicar esse resultado
+
+3)  Como as áreas queimadas mudaram ao longo destes 10 anos? Responda às questões abaixo.
+
+<!-- -->
+
+a)  Quais são os 3 países que mais tiveram área queimada em cada ano? Qual foi a formação responsável por essa queima em cada país?
+
+b)  Identifique os 3 países que tiveram maior aumento percentual de área queimadas (2012 e 2022) e os 3 que tiveram maior diminuição percentual de áreas queimadas no país
+
+<!-- -->
+
+4)  Os 3 países que tiveram maior extensão de área queimada (ha) também são aqueles com maior emissão de CO2 (kt) nos anos de 2012 e 2022?
+
+5)  A partir dos dados podemos afirmar que existe uma relação entre área queimada e emissão de CO2 em todo o globo? Interprete os resultados e discorra brevemente e elabore explicações do resultado encotrado.
+
+```{r include=FALSE}
+#BIBLIOTECAS QUE TENTAREI USAR
+library(rio) 
+library(pliman) 
+library(ggplot2)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(scales)
+
+#SETAR O DIRETORIO E SETAR OS EXCELS
+set_wd_here()
+analiseFao <- import(file = "FAOSTAT_CO2.xlsx")
+analiseBurnedArea <- import(file = "Burned_Area.csv")
+
+```
+
+```{r}
+#Variaveis GLOBAIS
+df_fao_humid = data.frame()
+df_fao_other = data.frame()
+df1 = data.frame()
+df2 = data.frame()
+nFao= length(analiseFao[[1]])
+j=0
+teste= data.frame()
+
+#SEPARAR O DATA FRAME EM 2 DATAFRAME DE ACORDO COM AS FORMATIONS
+while (j < nFao) {
+  j = j + 1
+   if (analiseFao[j,3] == "Other forest"){ 
+    df1 = data.frame(analiseFao[j,])
+    df_fao_other = bind_rows(df_fao_other,df1)
+
+  } else {
+    df2 = analiseFao[j,] 
+    df_fao_humid = bind_rows(df_fao_humid,df2)
+  }
+}
+#RESETAR A VAR GLOBAL
+j=0
+
+#TRANSFORMAR OS NA EM UNIT PARA KT e nos valores para 0
+df_fao_humid[4] <- "kt"
+df_fao_other[4] <- "kt"
+df_fao_humid[is.na(df_fao_humid)] <- 0
+df_fao_other[is.na(df_fao_other)] <- 0
+
+
+#contar o tamanho do df
+nBurn= length(analiseBurnedArea[[1]])
+
+#COLOCAR EM PIVOT LONGER para facilitar a manipulação colunas virarem linhas
+long_Fao_Humid <- pivot_longer(
+  df_fao_humid,
+  cols = c("2012":"2022"),
+  names_to = "Ano",
+  values_to = "Valor"
+  
+)
+
+long_Fao_Other <- pivot_longer(
+  df_fao_other,
+  cols = c(X2012:X2022),
+  names_to = "Ano",
+  values_to = "Valor"
+  
+)
+
+#TRANSFORMAR OS VALORES PARA NUMERICO E SOMAR TUDO
+long_Fao_Humid$Valor <- as.numeric(long_Fao_Humid$Valor)
+df_resumo_FAO_humid <- long_Fao_Humid %>%
+  group_by(Area) %>%
+  summarize(Soma_Valor = sum(Valor, na.rm = TRUE)) 
+
+long_Fao_Other$Valor <- as.numeric(long_Fao_Other$Valor)
+df_resumo_FAO_other <- long_Fao_Other %>%
+  group_by(Area) %>%
+  summarize(Soma_Valor = sum(Valor, na.rm = TRUE))
+
+
+#Aqui virou putaria, VAI SOMAR TODOS OS VALORES PARA TER UMA VARIAVEL COM TODOS OS VALORES VAI PUXAR UM MUTATE COM A BIBLIO SCALE PARA TRANSFORMAR EM PORCENTAGEM E POR FINAL VAI ORGANIZAR DE FORMA DECRESCENTE DE ACORDO COM A SOMA DOS VALORES
+valor_total_FAO_humid <- sum(df_resumo_FAO_humid$Soma_Valor, na.rm = TRUE)
+
+df_resumo_FAO_humid <- df_resumo_FAO_humid %>%
+  mutate(Proporcao = percent((Soma_Valor / valor_total_FAO_humid), accuracy = 0.01)) %>%  
+  arrange(desc(Soma_Valor))
+
+valor_total_FAO_other <- sum(df_resumo_FAO_other$Soma_Valor, na.rm = TRUE)
+
+df_resumo_FAO_other <- df_resumo_FAO_other %>%   
+  mutate(Proporcao = percent((Soma_Valor / valor_total_FAO_other), accuracy = 0.01))%>%  
+  arrange(desc(Soma_Valor))
+```
+
+Depois plotar grafico de pizza um do lado do outro tanto o Df_resumo_Fao_humid e other com os principais paises
+
+```{r}
+
+```

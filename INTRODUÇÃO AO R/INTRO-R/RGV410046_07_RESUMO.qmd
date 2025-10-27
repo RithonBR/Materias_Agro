@@ -1,0 +1,163 @@
+---
+title: "7. Sintetização"
+editor_options: 
+  chunk_output_type: console
+---
+
+# Diretório
+
+```{r include = FALSE}
+knitr::opts_knit$set(root.dir = "D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+```{r eval=FALSE}
+# meu computador (mudar de acordo)
+setwd("D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+# Pacotes e dados
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(metan)
+library(DataExplorer)
+
+# dados
+maize <- 
+  import("examples_data.xlsx",
+         sheet = "maize",
+         setclass = "tbl")
+
+```
+
+
+
+# Sintetização
+
+Após a organização e mutação dos dados, o cientista precisa resumi-los utilizando alguma métrica de interesse. A média, a mediana, a variância, a frequência, a proporção, por exemplo, são tipos de sumarização que trazem diferentes informações sobre uma variável. No R, a função [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) cria um novo data frame. Ele terá uma (ou mais) linhas para cada combinação de variáveis de agrupamento; se não houver variáveis de agrupamento, a saída terá uma única linha resumindo todas as observações na entrada. Ele conterá uma coluna para cada variável de agrupamento e uma coluna para cada uma das estatísticas de resumo que você especificou.
+
+[![Fonte: https://dplyr.tidyverse.org/index.html](figs/summarize.png)](https://dplyr.tidyverse.org/index.html)
+
+## Uma variável, uma estatística
+
+Diversos verbos do pacote `dplyr` podem ser utilizados para resumir conjuntos de dados. Iniciaremos com a função `count()` para contar valores que se repetem em uma determinada variável. Por exemplo, é possível identificar qual é o valor de `NGRA` que mais se repete utilizando
+
+```{r}
+maize |> count(NGRA, sort = TRUE)
+```
+
+Para identificar quais os valores distintos de `NGRA` foram observados a função `distinct()` é usada.
+
+```{r}
+maize |> distinct(NGRA)
+```
+
+Para calcular a média da variável `NGRA` usamos a função `summarise()` é usada.
+
+```{r error=TRUE}
+maize |> summarise(media_ngra = mean(NGRA))
+# checar valores faltantes
+plot_missing(maize)
+
+# remover os NAs para cálculo da estatística
+maize |> summarise(media_ngra = mean(NGRA, na.rm = TRUE))
+
+#usando o R base
+mean(maize$NGRA, na.rm = TRUE)
+```
+
+
+## Uma variável, diversas estatísticas
+
+Utilizando a função `summarise()` é possível criar uma ou mais variáveis escalares resumindo as variáveis de um data frame existente. Como resultado, uma linha e várias colunas é retornada. O seguinte código calcula a média global e o desvio padrão amostral da variável `MGRA` eretorna o *n* utilizado na estimativa.
+
+```{r}
+maize |>  
+  summarise(MGRA_mean = mean(MGRA),
+            MGRA_sd = sd(MGRA),
+            n = n())
+```
+
+Muitas vezes é necessário computar uma determinada função (como a média) para cada nível de uma variável categórica. Continuamos no mesmo exemplo anterior, mas agora neste caso, o objetivo é calcular a média da `MGRA` para cada híbrido. Utilizando a função `group_by()` antes da função `summarise()` uma linha de resultado para cada nível do fator híbrido é retornado.
+
+```{r}
+
+maize |>
+  group_by(HIB) %>%
+  summarise(MGRA_mean = mean(MGRA),
+            MGRA_max = max(MGRA),
+            MGRA_min = min(MGRA))
+
+
+```
+
+
+{{< video https://www.youtube.com/embed/gbP5tZS6f2M >}}
+
+## Diversas variáveis, uma estatística
+
+Até aqui vimos como a média (global ou para cada híbrido) da MGRA pode ser calculada. Quase sempre, no entanto, quando calculamos a média (ou qualquer outra medida) em um conjunto de dados, queremos fazê-la para todas (ou algumas) variáveis numéricas dos dados. Implementar isto com `dplyr` é relativamente fácil. Para isto, é utilizada a função `across()` que aplica uma função (ou um conjunto de funções) a um conjunto de colunas. Veremos como `across()` pode ser utilizada para calcular a média para as variáveis numéricas do conjunto `maize`. No exemplo abaixo, `where()` aplica uma função (neste caso `is.numeric()`) a todas as variáveis e seleciona aquelas para as quais a função retorna `TRUE`. Assim, a média somente é calculada para as variáveis numéricas.
+
+```{r}
+maize |> 
+  summarise(across(.cols = where(is.numeric),
+                   .fns =  mean,
+                   na.rm = TRUE)) 
+```
+
+Funções próprias podem ser aplicadas dentro da função `summarise()` para computar uma estatística personalizada. Como exemplo, vamos criar uma função chamada `se` que retornará o erro padrão da média e aplicá-la a todas as variáveis que iniciam `"M"`, para cada nível do fator AMB.
+
+```{r}
+se <- function(dados){
+  sd(dados, na.rm = TRUE) / sqrt(length(na.omit(dados)))
+}
+
+maize |>
+  group_by(AMB) %>%
+  summarise(across(.cols = contains("_PLANT"),
+                   .fns = se,
+                   .names = "{.col}.se"))
+```
+
+
+
+{{< video https://www.youtube.com/embed/_Htjv0s4_nw >}}
+
+## Diversas variáveis, diversas estatísticas
+
+Se desejamos computar mais de uma estatística para variáveis específicas, então o próximo código nos ajudará. Note que para aplicar mais de uma função é necessário criar uma lista com o nome das funções. Neste caso, os sufixos `_m` e `_sd` representam a média e o desvio padrão, respectivamente. Faremos isso para cada nível da variável `HIB`.
+
+```{r}
+maize %>%
+  group_by(HIB, AMB) |> 
+  summarise(across(starts_with("M"),
+                   .fns =  list(m = mean, sd = sd)))
+```
+
+
+
+{{< video https://www.youtube.com/embed/BtoE-YSh9Uw >}}
+
+
+
+## Quick tips
+
+```{r}
+
+my_quantile <- function(x, probs) {
+  tibble::tibble(x = quantile(x, probs), probs = probs)
+}
+mtcars %>%
+  group_by(cyl) %>%
+  summarise(my_quantile(disp, c(0.25, 0.75)))
+
+
+maize %>%
+   group_by(HIB) %>%
+  summarise(my_quantile(MGRA, c(0.25, 0.75)))
+```
+
+```{=html}
+<div align='center'><a href='https://www.free-website-hit-counter.com'><img src='https://www.free-website-hit-counter.com/c.php?d=9&id=141639&s=2' border='0' alt='Free Website Hit Counter'></a><br / ><small><a href='https://www.free-website-hit-counter.com' title="Free Website Hit Counter">Free website hit counter</a></small></div>
+```

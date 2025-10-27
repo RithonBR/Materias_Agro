@@ -1,0 +1,69 @@
+project:
+  type: website
+  # render:
+  #   - "dia_02.qmd"
+
+theme:
+  light: flatly
+  dark: darkly
+
+website:
+  search:
+    location: sidebar
+  title: "Intro-R"
+  page-footer:
+    border: true
+    background: light
+    left: "Introdução à Linguagem R de Programação"
+    right: "Profs. Olivoto & Giles"
+  page-navigation: true
+  navbar:
+    background: "#0759e8"
+    search: true
+    left:
+      - text: "About"
+        file: 00_about.qmd
+        icon: fa fa-home
+    right:
+      - icon: browser-chrome
+        href: https://olivoto.com.br
+      - icon: bi bi-github
+        href: https://github.com/TiagoOlivoto
+      - icon: linkedin
+        href: https://www.linkedin.com/in/tiago-olivoto-49060531/
+
+  sidebar:
+    style: "docked"
+    background: light
+    border: true
+    search: true
+    contents:
+      - RGV410046_01_INTRO.qmd
+      - RGV410046_02_PROGRAMACAO.qmd
+      - RGV410046_03_DADOS.qmd
+      - RGV410046_04_SELECAO.qmd
+      - RGV410046_05_MANIPULACAO.qmd
+      - RGV410046_06_MUTACAO.qmd
+      - RGV410046_07_RESUMO.qmd
+      - RGV410046_08_DATAVIZ.qmd
+
+format:
+  html:
+    theme:
+       light: journal
+       dark: darkly
+    toc: true
+    toc-title: "In this page"
+    number-sections: true
+    number-depth: 3
+    self-contained: true
+    smooth-scroll: true
+    code-fold: false
+    code-tools: true
+    code-block-bg: "#f5f2f2"
+    highlight-style: tango
+    code-block-border-left: "#31BAE9"
+    code-link: true
+
+execute:
+  collapse: true

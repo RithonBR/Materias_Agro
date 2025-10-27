@@ -1,0 +1,69 @@
+-------ELETRICIDADE 1--------------
+BOYLESTAD, R.L. Introdução à Análise de Circuitos. 10a. Prentice Hall. 2004	
+GUSSOW, M. Eletricidade Básica. 2a. Makron Books. 1997	
+MARKUS, O. Circuitos Elétricos - Corrente Contínua e Corrente Alternada - Teoria e Exercícios. 2a. Érica. 2001
+
+-------ELETRONICA DIGITAL 1--------------
+Sistemas digitais: princípios e aplicações.	
+Elementos de eletrônica digital	
+Eletrônica digital: princípios e aplicações
+
+-------PROJETOS--------------
+CAPUANO, F. G. e MENDES MARINO, M. A.. Laboratório de Eletricidade e Eletrônica.. 3ed. Editora Érica. 1988	
+
+-------ELETRICIDADE 2--------------
+Gussoe, M.. Eletricidade Básica. . Makron Books. 1997	
+Boylestad, R. L.. Introdução à Análise de Circuitos. . Prentice Hall. 2004	
+Markus, O. Circuitos Elétricos - Corrente Contínua e Corrente Alternada: Teoria e Exercícios. . Érica. 2001	
+Bolton, W.. Análise de Circuitos Elétricos. . Makron Books. 1994
+
+-------ELETRONICA ANALOGICA 1--------------
+Site Newton Braga	
+http://www.newtoncbraga.com.br/	
+BRAGA, N. C.. Fontes de Alimentação.. . Saber. 2005	
+BOYLESTAD, R. L. e NASHELSKY, L.. Dispositivos Eletrônicos e Teoria de Circuitos. . Prentice Hall do Brasil. 2004	
+SEDRA, A. S. e SMITH, K. C. Microeletrônica. . Pearson. 2000	
+MARKUS, O. Ensino Modular: Sistemas Analógicos Circuitos com diodos e transistores. . Érica. 2008	
+MARQUES, A.E.B., LOURENÇO, A.C. e CRUZ, E.C.A. Dispositivos Semicondutores: diodos e transistores. . Érica. 2004	
+MALVINO, A. P.. Eletrônica. . MacGraw-Hill. 2006	
+LALOND, David E.; Ross, John A. Princípios de Dispositivos e Circuitos Eletrônicos. . Makron Books. 1999	
+BOGART JR, Theodore F. Dispositivos e Circuitos Eletrônicos. . Pearson Makron Books. 2001
+
+-------ELETRONICA DIGITAL 2--------------
+Video Eletrônica Digital II - Latches https://www.youtube.com/watch?v=YdvxkW8c3V8	
+IDOETA, I. V., CAPUANO, F. G.. Elementos de Eletrônica Digital. 40a. São Paulo: Érica. 2007	
+MALVINO, A. P.. Eletrônica Digital. 1a. São Paulo: McGraw-Hill. 1987	
+TOCCI, R. J. WIDMER, N. S.. Sistemas Digitais: Princípios e Aplicações. 8a. Rio de Janeiro: LTC. 2003	
+
+-------LOGICA DE PROGRAMAÇÃO--------------
+MONK, S.. Programando o Raspberry Pi. 1ª edição. Novatec. 2013	
+McROBERTS. M.. Arduino Básico. 1ª edição. Novatec. 2011	
+BANZI, M. Primeiros passos com o Arduino. 1ª edição. Novatec. 2011	
+Forbellone. Lógica de Programação. 3ª edição. Makron Books. 2005
+
+-------AMPLIFICADORES OPERACIONAIS--------------
+SEDRA, A. S. SMITH, K. C. Microeletrônica. 4ª. Pearson. 2000	
+MALVINO, A. P. Eletrônica Vol 2. 4ª. McGraw-Hill. 2005	
+LALOND, D. ROSS, J. Princípios de Dispositivos e Circuitos Eletrônicos Vol 2. 1ª. Makron Books. 1999	
+BOYLESTAD, R.L. NASHELSKY, L. Dispositivos Eletrônicos e Teoria de Circuitos. 8ª. Prentice Hall. 2004	
+PERTENCE JR., A.. Amplificadores Operacionais e Filtros Ativos. 6ª. Bookman. 2003
+
+-------ELETRONICA ANALOGICA 2--------------
+SEDRA, Adel S.; SMITH, Kenneth C.; Tony Chan Carusone; et al. Circuitos Microeletrônicos. 8. Grupo GEN. 2023	
+Malvino, Albert P.; Bates, David J.. Eletrônica: volume 1. 7a. AMGH. 2011	
+Boylestad, Robert L.; Nashelsky, Louis.. Dispositivos eletrônicos e teoria de circuitos. 11a. Pearson. 2013	
+Cathey, J. J.. Dispositivos eletrônicos e teoria de circuitos (Coleção Schaum). 2a. Bookman. 2003
+
+-------MAQUINAS ELETRONICAS--------------
+A. E. Fitzgerald, Charles Kingsley Jr., Stephen D. Umans.. Máquinas Elétricas com Introdução à Eletrônica de Potência. 6ª. Bookman. 2006	
+Irving Lionel Kosow.. Máquinas elétricas e transformadores.. 15 ed.. Globo.. 2005	
+Vincent Del Toro.. Fundamentos de máquinas elétricas.. . LTC. 1994	
+Gilio Aluisio Simone.. Máquinas de corrente contínua: teoria e exercícios.. . Érica.. 2000	
+Gilio Aluisio Simone.. Máquinas de indução trifásicas : teoria e exercícios.. 2 ed.. Érica.. 2007	
+Claiton Moro Franchi.. Acionamentos elétricos.. 4ª ed.. Érica.. 2008.
+
+-------PROGRAMAÇÃO EM C --------------
+GRIFFITHS, D. GRIFFITHS, D.. Use a cabeça! C. 1. Alta Books. 2013	
+Schildt, h.. C Completo e Total. 3. Makron Books. 1997	
+RUSSEL, D.. Introduction to Embedded Systems: Using ANSI C and the Arduino Development Environment. 1. Morgan & Claypool. 2010	
+OUALLINE, S.. Practical C Programming. 3. Sebastopol. 1997

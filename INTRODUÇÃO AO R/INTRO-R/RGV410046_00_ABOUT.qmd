@@ -1,0 +1,201 @@
+---
+title: "RGV410046 - Introdução à linguagem R de programação"
+---
+
+![](figs/bem-vindo.png)
+
+Bem-vindo ao material de apoio da disciplina RGV410046 (Introdução à linguagem R de programação)! Esta página contém os dados e scripts R necessários para aplicação prática dos conteúdos vistos na disciplina.
+
+# Docentes
+
+::: {layout-ncol="2"}
+[![Prof. Dr. Tiago Olivoto](figs/olivoto.png)](https://olivoto.netlify.app/)
+
+[![Dr. Andre Luiz Giles de Oliveira](figs/giles.png)](http://lattes.cnpq.br/5450976686682976)
+:::
+
+# Calendário de aulas
+
+```{r }
+#| code-fold: true
+#| code-summary: "Clique aqui e veja como o calendário foi feito!"
+#| out-width: "100%"
+#| warning: false
+#| message: false
+#| 
+
+library(calendR)
+# tutorial calendR
+# https://r-coder.com/calendar-plot-r/
+events <- rep(NA, 60)
+events[c(30, 32:34,
+         37, 39:41)] <- "Aula"
+# Creating the calendar
+calendR(from ="2024-09-01",
+        to = "2024-10-30",
+        special.days = events,
+        special.col =  c("lightgreen"),
+        title = "RGV410046\nIntrodução à linguagem R de programação", 
+        subtitle = "Cronograma de aulas 2024/02 - 08:20 às 11:50",
+        mbg.col = "forestgreen",            
+        months.col = "white",
+        legend.pos = "bottom")
+```
+
+# Salas
+* À definir
+
+# Conteúdo programático
+
+## 30/09/2024
+
+-   Introdução à disciplina
+-   Instalação do R e Rstudio
+-   Introdução ao R
+    -   Script
+    -   Pacotes
+    -   Fóruns e materiais de apoio
+-   Apresentação do desafio (avaliação da disciplina)
+-   Aplicação prática
+
+
+## 02/10/2024
+
+-   Dinâmica aula anterior
+-   Tipos de dados
+-   Numérico
+-   Lógico
+-   Caractere
+-   Estrutura de dados;
+    -   Vetor
+    -   Matriz
+    -   Data frame
+    -   Tibbles
+    -   Array
+-   Lógica de programação
+    -   Base
+    -   Tidyverse
+-   Aplicação prática
+
+
+## 03/10/2024
+
+-   Importação de dados (pc, repositório)
+-   dados tidy
+-   Inspeção de dados
+-   Exportação de dados
+-   Aplicação prática
+
+
+## 04/10/2024
+
+-   Seleção de dados
+-   select
+-   filter
+-   slice
+-   arrange
+-   Aplicação prática
+
+
+## 07/10/2024
+
+-   Manipulação de dados
+-   Longer (dados errados, para arrumar)
+-   Wider
+-   Separate
+-   Unite
+-   Aplicação prática
+
+
+## 09/10/2024
+
+-   Mutação de dados
+-   mutate
+-   across
+-   group_by
+-   Aplicação prática
+
+## 10/10/2024
+
+-   Resumo de dados
+-   summarise
+-   across
+-   group_by
+-   Aplicação prática
+
+## 11/10/2024
+- Entrega do desafio
+-   Correção do desafio
+
+
+# Forma de avaliação
+A avaliação consistirá em uma metodologia baseado em problema, onde o aluno precisará apresentar uma solução para resolução de um desafio envolvendo o conteúdo visto na disciplina. O desafio será apresentado no ínicio da disciplina e o aluno deverá entrega-lo até o dia 11/10/2024.
+
+
+# Instalação do R e Rstudio
+
+Para reprodução dos exemplos deste material, os softwares R e RStudio são necessários
+
+{{< video https://www.youtube.com/embed/e89kyYJgWqc >}}
+
+<a class="btn btn-success" href="https://cran.r-project.org/bin/windows/base/" target="_blank"><i class="fa fa-save"></i> Download do R</a>
+
+<a class="btn btn-success" href="https://www.rstudio.com/products/rstudio/download/" target="_blank"><i class="fa fa-save"></i> Download do RStudio</a>
+
+# Pacotes necessários
+
+Para começar, é sugerido que os seguintes pacotes sejam instalados (confira como fazer isso no vídeo abaixo).
+
+```{r warning=FALSE, message = FALSE}
+library(tidyverse)  # manipulação de dados
+library(metan)      # estatísticas descritivas
+library(rio)        # importação/exportação de dados
+
+```
+
+{{< video https://www.youtube.com/embed/8B8QDZnDhtY >}}
+
+# Dados e scripts
+
+<a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/TiagoOlivoto/classes/tree/master/RGV410046" target="_blank" rel="noopener"> <button class="btn btn-success"><i class="fa fa-save"></i> Download dados e scripts</button> </a>
+
+```{r echo=FALSE}
+fs::dir_tree("D:/Desktop/UFSC/aulas/classes/RGV410046/data", recurse = 1)
+```
+
+{{< video https://www.youtube.com/embed/hnO-KMpIVcg >}}
+
+# Referências
+
+::: {layout-ncol="3"}
+[![](figs/eambr.png)](https://bendeivide.github.io/book-eambr01/)
+
+[![](figs/book_olivoto.png)](https://tiagoolivoto.github.io/e-bookr/index.html)
+
+[![](figs/r4ds.png)](https://r4ds.had.co.nz/)
+:::
+
+# Detalhes importantes
+
+## Código fonte
+
+O código fonte deste material pode ser encontrado neste [repositório](https://github.com/TiagoOlivoto/classes/tree/master/RGV410046) GitHub. Para informar qualquer problema, por favor, crie um [pull request](https://github.com/TiagoOlivoto/classes/pulls).
+
+## Licença
+
+```{=html}
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener"><img src="https://raw.githubusercontent.com/TiagoOlivoto/tiagoolivoto/master/static/img/gemsr/license.jpg" alt="Licença Creative Commons" style="border-width:0" width="200" height="40"/></a><br />Este material é distribuído nos termos da licença <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>
+```
+O resumo legível da licença afirma que você tem o direito de:
+
+-   **Compartilhar** --- copiar e redistribuir o material em qualquer suporte ou formato
+-   **Adaptar** --- remixar, transformar, e criar a partir do material
+-   **Atribuição** --- Você deve dar o crédito apropriado, prover um link para a licença e indicar se mudanças foram feitas. Você deve fazê-lo em qualquer circunstância razoável, mas de nenhuma maneira que sugira que o licenciante apoia você ou o seu uso.
+-   **De acordo com os termos seguintes**
+    -   **Não Comercial** --- Você não pode usar o material para fins comerciais.
+    -   **CompartilhaIgual** --- Se você remixar, transformar, ou criar a partir do material, tem de distribuir as suas contribuições sob a mesma licença que o original.
+    -   **Sem restrições adicionais** --- Você não pode aplicar termos jurídicos ou medidas de caráter tecnológico que restrinjam legalmente outros de fazerem algo que a licença permita.
+
+```{=html}
+<div align='center'><a href='https://www.free-website-hit-counter.com'><img src='https://www.free-website-hit-counter.com/c.php?d=9&id=138603&s=2' border='0' alt='Free Website Hit Counter'></a><br / ><small><a href='https://www.free-website-hit-counter.com' title="Free Website Hit Counter">Free website hit counter</a></small></div>
+```

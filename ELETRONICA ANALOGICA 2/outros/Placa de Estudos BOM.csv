@@ -1,0 +1,34 @@
+Date:,24/07/2023 18:06,,,
+Tool:,Eeschema 7.0.6,,,
+Generator:,C:\Program Files\KiCad\7.0\bin\scripting\plugins/bom_csv_grouped_by_value_with_fp.py,,,
+Component Count:,44,,,
+Ref,Qnty,Value,Footprint,Description
+"C1, C2",2,100n,Capacitor_THT:C_Rect_L7.0mm_W3.5mm_P5.00mm,
+C3,1,1u,Capacitor_THT:C_Rect_L7.2mm_W5.5mm_P5.00mm_FKS2_FKP2_MKS2_MKP2,
+"C4, C6",2,220u,Capacitor_THT:CP_Radial_D8.0mm_P3.50mm,
+C5,1,100u,Capacitor_THT:CP_Radial_D6.3mm_P2.50mm,
+C7,1,1u,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,
+"C8, C10",2,220u,Capacitor_SMD:CP_Elec_6.3x5.2,
+C9,1,100u,Capacitor_SMD:CP_Elec_6.3x5.2,
+D1,1,1N5232,Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal,Zener diode
+D2,1,RED,LED_THT:LED_D5.0mm,
+J1,1,Barrel_Jack_Switch,Connector_BarrelJack:BarrelJack_Horizontal,
+"J2, J5",2,Conn_01x10,Connector_PinSocket_2.54mm:PinSocket_1x10_P2.54mm_Vertical,"Generic connector, single row, 01x10, script generated (kicad-library-utils/schlib/autogen/connector/)"
+"J3, J6",2,Screw_Terminal_01x02,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal",
+"J4, J7",2,Screw_Terminal_01x03,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3_1x03_P5.00mm_Horizontal",
+"Q1, Q2",2,BC338 B,Package_TO_SOT_THT:TO-92_Wide,"0.8A Ic, 25V Vce, NPN Transistor, TO-92"
+Q3,1, BC817 B,Package_TO_SOT_SMD:SOT-23,"0.8A Ic, 45V Vce, NPN Transistor, SOT-23"
+R1,1,820,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+R2,1,5k6,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+R3,1,47k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+R4,1,18k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+R5,1,680,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+R6,1,68,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+R7,1,270,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+R8,1,47k,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+R9,1,18k,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+R10,1,680,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+R11,1,150,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+R12,1,180,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+"SW1, SW2",2,SW_DIP_x04,Button_Switch_THT:SW_DIP_SPSTx04_Slide_9.78x12.34mm_W7.62mm_P2.54mm,"4x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+"TP0, TP1, TP2, TP3, TP4, TP5, TP6, TP7",8,TestPoint,TestPoint:TestPoint_Loop_D2.50mm_Drill1.0mm,test point

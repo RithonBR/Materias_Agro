@@ -1,0 +1,9 @@
+A)Num campo elétrico uniforme o dipólo sofre a ação de duas forças iguais e opostas que tendem a girar o dipólo, alinhando o momento de dipólo com o campo elétrico. Como o campo elétrico é uniforme, a força resultante sobre o dipólo é nula, e o centro de massa do dipólo não se move. No entanto, as forças sobre as extremidades carregadas produzem um torque resultante sobre o dipólo em torno de seu centro de massa.
+
+http://www.fotoacustica.fis.ufba.br/daniele/fis3/dipoloeletrico.pdf
+
+
+B)	Como as moléculas de água dos alimentos têm uma carga elétrica diferente em seus pólos,giram com a polaridade variável (direção) do campo elétrico. A fricção entre as moléculas giratórias produz calor e assim cozinha os alimentos.
+
+
+http://www.fotoacustica.fis.ufba.br/daniele/fis3/dipoloeletrico.pdf

@@ -1,0 +1,369 @@
+---
+title: "4. Seleção e filtragem"
+editor_options: 
+  chunk_output_type: console
+---
+
+# Diretório
+
+```{r include = FALSE}
+knitr::opts_knit$set(root.dir = "D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+```{r eval=FALSE}
+# meu computador (mudar de acordo)
+setwd("D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+
+# Pacotes e dados
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(metan)
+
+```
+
+# Introdução
+
+Após seus dados estarem carregados no ambiente R, eles provavelmente necessitarão de alguma manimulação antes de serem utilizados em uma determinada análise. Esta manipulação pode envolver operações como exclusão de colunas, ordenamento de linhas com base em valores, criação de covariáveis (que serão resultado de operações com uma ou mais variáveis existentes), dentre muitas outras possibilidades. Felizmente, o pacote `dplyr` permite que esta manimulação seja relativamente fácil, lógica (do ponto de vista de digitação de códigos) e rápida, pois ele integra a linguagem `C++` em suas funções.
+
+O pacote `dplyr` é uma *gramática* de manipulação de dados. Nos rerferimos à *gramática* aqui porque ele fornece funções nomeadas como *verbos* simples, relacionados às tarefas mais comuns de manipulação de dados, para ajudá-lo a traduzir seus pensamentos em código. Este será o pacote utilizado para manipulação dos dados no decorrer deste material. De fato, a maioria dos dados em R podem ser manipulados utilizando os seguintes "verbos".
+
+-   `select()` e `rename()` para selecionar variáveis com base em seus nomes.
+-   `mutate()` e `transmute()` para adicionar novas variáveis que são funções de variáveis existentes.
+-   `arrange()` para reordenar as linhas.
+-   `filter()` para selecionar linhas com base em seus valores.
+-   `slice_*()` para selecionar linhas com base em sua posição.
+-   `summarise()` para resumir vários valores para um único valor.
+-   `group_by()` para agrupar dados com base em níveis de variáveis categóricas.
+-   `across()` para aplicar a mesma transformação a várias colunas.
+
+Anteriomente mencionamos que a manipulação dos dados com o pacote **dplyr** é lógica do ponto de vista da implementação do código. Isto só é possivel devido a utilização do operador `%>%` (*forward-pipe operator*), importado do pacote `magrittr` (ou com o pipe `|>` disponível do R vesão 4.1 ou superior). Basicamente, este operador capta o argumento resultante de uma função à sua esquerda e passa como *input* à função à sua direita. Considere as seguintes (e simples) operações. Crie um data frame com 100 linhas com as variáveis *x* e *y* contendo valores aleatórios. Adicione uma terceira variáveis (*z*) que será uma função da multiplicação de *x* e *y*, selecione apenas os valores de *z* menores que 10 e extraia a raiz quadrada destes valores. Finalmente, compute a média e armazene no object `mean_sqrt`.
+
+-   Criando o conjunto de dados
+
+```{r}
+set.seed(1)
+data <- 
+  tibble(x = runif(100, 0, 10),
+         y = runif(100, 0, 10))
+```
+
+-   Utilizando as funções bases do R (código massivo)
+
+```{r echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE}
+data$z <- data$x * data$y
+df <- subset(data, z < 10)
+df <- df[, 3]
+sqr_dat <- sqrt(df$z)
+mean_sqrt <- mean(sqr_dat)
+mean_sqrt
+```
+
+-   Utilizando as funções bases do R (código mais limpo, envelopando funções)
+
+```{r echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE}
+data$z <- data$x * data$y
+mean_sqrt <- mean(sqrt(subset(data, z < 10)$z))
+mean_sqrt
+```
+
+-   Utilizando o operdor `|>`
+
+```{r echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE}
+mean_sqrt <- 
+  data |> 
+  mutate(z = x * y) |>
+  filter(z < 10) |>
+  pull(z) |>
+  sqrt() |>
+  mean()
+mean_sqrt
+
+```
+
+# Trabalhando com colunas
+
+## Selecionar colunas
+
+[![](figs/select.png){fig-alt="Fonte: https://dplyr.tidyverse.org/"}](https://dplyr.tidyverse.org/)
+
+A função [`select()`](https://dplyr.tidyverse.org/reference/select.html) do pacote `dplyr` pode ser usada para selecionar colunas de um conjunto de dados com base em seu nome (por exemplo, `a:f` seleciona todas as colunas de `a` à esquerda a `f` à direita). Você também pode usar funções de predicado como `is.numeric` para selecionar variáveis com base em suas propriedades. As seleções do Tidyverse implementam um dialeto R onde os operadores facilitam a seleção de variáveis:
+
+-   `:` para selecionar um intervalo de variáveis consecutivas.
+-   `!` para tomar o complemento de um conjunto de variáveis.
+-   `&` e `|` para selecionar a interseção ou a união de dois conjuntos de variáveis.
+-   `c()` para combinar seleções.
+
+### Com base em seus nomes
+
+```{r}
+maize <- 
+  import("examples_data.xlsx",
+         sheet = "maize",
+         setclass = "tbl")
+# para evitar uma saída longa
+df <- maize |> slice(1:5)
+
+# lista de nomes
+df |> select(AMB, HIB, REP)
+# sequência de nomes
+df |> select(AMB:REP)
+# vector de posições
+df |> select(1:3)
+# negar a seleção
+df |> select(!c(AMB:REP))
+
+```
+
+### Com base na classe
+
+A função `where()` aplica uma função a todas as variáveis e seleciona aquelas para as quais a função retorna `TRUE`. Assim, podemos selecionar facilmente colunas com base em sua classe
+
+```{r}
+# seleciona variáveis numéricas
+df |> select(where(is.numeric))
+# seleciona variáveis não numéricas
+df |> select(!where(is.numeric))
+
+```
+
+### Select helpers
+
+Essas funções permitem selecionar variáveis com base em seus nomes.
+
+-   `starts_with()`: começa com um prefixo
+
+```{r}
+df |> select(starts_with("C"))
+
+```
+
+-   `ends_with()`: termina com um prefixo
+
+```{r}
+df |> select(ends_with("S"))
+# variáveis que começam com M e terminam com A
+df |> select(starts_with("M") & ends_with("A"))
+# variáveis que começam com M ou terminam com A
+df |> select(starts_with("M") | ends_with("A"))
+```
+
+-   `contains()`: contém uma string literal
+
+Se as variáveis no conjunto de dados tiverem um padrão com diferenças entre um grupo de variáveis, podemos usar o código a seguir para selecionar variáveis com um padrão.
+
+```{r}
+df |> select(contains("PLANT"))
+
+```
+
+-   `matches()`: corresponde a uma expressão regular
+
+Seleções mais sofisticadas podem ser feitas usando [`matches()`](https://tidyselect.r-lib.org/reference/select_helpers.html). Supondo que gostaríamos de selecionar as variáveis que começam com "A" e tem a segunda letra entre "A" e "M", usaríamos algo como
+
+```{r}
+df |> select(matches("^A[A-M]"))
+```
+
+-   `one_of()`: variáveis no vetor de caracteres.
+
+```{r}
+vars <- c("TESTE", "CESP", "NGRA", "NAO_TEM")
+df |> select(one_of(vars))
+```
+
+-   `everything()`: todas as variáveis.
+
+```{r}
+df |> select(everything())
+```
+
+## Extrair colunas
+
+No R base, para extrair colunas de um data frame usamos `$`. A função [`pull()`](https://dplyr.tidyverse.org/reference/pull.html) é semelhante a `$`, mas é mais fácil de ser utilizada com pipes. Para seleção, podemos especificar uma variável como:
+
+-   um nome de variável literal
+-   um inteiro positivo, dando a posição contando a partir da esquerda
+-   um inteiro negativo, dando a posição contando a partir da direita.
+-   O padrão retorna a última coluna (supondo que seja a coluna que você criou mais recentemente).
+
+Note a diferença.
+
+```{r}
+df$MGRA
+# padrão é a última coluna
+df |> pull()
+# selecionar variável com base no nome
+df |> pull(MGRA)
+# selecionar variável com base na sua posição
+df |> pull(5)
+
+```
+
+## Realocar colunas (Avançado)
+
+Para reordenar colunas em um data frame, podemos utilizar a função [`relocate()`](https://dplyr.tidyverse.org/reference/relocate.html) do pacote `dplyr`. Ela altera as posições das colunas, usando a mesma sintaxe que `select()` para facilitar a movimentação de blocos de colunas de uma só vez.
+
+```{r eval=FALSE}
+relocate(.data, ..., .before = NULL, .after = NULL)
+```
+
+Nesta função, as variáveis em ... são movidas para antes de `.before` ou depois de `.after`.
+
+```{r}
+df |> relocate(NGRA, .before = APLA_PLANT)
+df |> relocate(contains("_PLANT"), .after = last_col())
+df |> relocate(where(is.numeric), .before = where(is.character))
+```
+
+
+{{< video https://www.youtube.com/embed/F6rdmuitPAw >}}
+
+
+
+# Trabalhado com linhas
+
+[![Fonte: https://dplyr.tidyverse.org/](figs/filter.png)](https://dplyr.tidyverse.org/)
+
+## Selecionar linhas com base em seus valores
+
+Utilizando a função [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) é possivel filtrar as linhas de um conjunto de dados com base no valor de suas variáveis. No primeiro exemplo, selecionaremos as linhas onde o valor da variável MGRA é maior que 280.
+
+```{r echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE}
+maize %>% 
+  filter(MGRA > 280)
+```
+
+No segundo exemplo, selecionaremos apenas as linhas onde a MGRA é maior que 220 **OU** a APLA é menor que 1.3 **OU** o NGRA é maior que 820.
+
+```{r echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE}
+maize %>% 
+  filter(MGRA > 280 | APLA_PLANT < 1.3 | NGRA > 820)
+```
+
+No último exemplo, selecionaremos apenas as linhas onde MGRA é maior que é maior que 220 **E** a APLA é menor que 2.
+
+```{r echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE}
+maize %>% 
+  filter(MGRA > 220 & APLA_PLANT < 2)
+```
+
+Isto é aproximadamente equivalente ao seguinte código R base.
+
+```{r echo = TRUE, eval = FALSE, message = FALSE, warning = FALSE}
+maize[maize$MGRA > 220 & maize$APLA_PLANT < 2, ]
+```
+
+Você também pode usar `filter()` para remover grupos inteiros. Por exemplo, o código a seguir elimina todas as linhas que contém o híbrido "H1".
+
+```{r}
+maize |> filter(HIB != "H1")
+# seleciona somente os híbridos H1 e H2
+maize |> filter(HIB  %in%  c("H1", "H2"))
+```
+
+{{< video https://www.youtube.com/embed/FsqHLaxPFv8 >}}
+
+
+
+## Selecionar linhas com base em sua posição
+
+A função [`slice()`](https://dplyr.tidyverse.org/articles/grouping.html?q=slice#slice-and-friends) permite indexar linhas por seus locais (inteiros). Ele permite selecionar, remover e duplicar linhas. Ele é acompanhado por vários auxiliares para casos de uso comuns:
+
+-   `slice_head()` e `slice_tail()` selecionam a primeira ou a última linha.
+-   `slice_sample()` seleciona linhas aleatoriamente.
+-   `slice_min()` e `slice_max()` selecionam linhas com valores mais altos ou mais baixos de uma variável.
+
+```{r}
+# selciona as primeiras três linhas
+maize |> slice(1:3)
+# cinco linhas aleatórias
+maize |> slice_sample(n = 5)
+# dois menores valores de MGRA
+maize |> slice_min(n = 2, MGRA)
+# maior valor de NGRA
+maize |> slice_max(n = 1, NGRA)
+```
+
+
+{{< video https://www.youtube.com/embed/ybgmOVuTD28 >}}
+
+
+## Ordenar linhas com base em seus valores
+
+A função `arrange()` é utilizada para ordenar as linhas de um tibble (ou data.frames) com base em uma expressão envolvendo suas variáveis.
+
+```{r}
+# ordena as linhas com base na variável CESP (crescente)
+maize |> arrange(CESP)
+# ordena as linhas com base na variável CESP (decrescente)
+maize |> arrange(desc(CESP))
+
+
+```
+
+Ao combinar a função `group_by()` com `arrange()` é possível realizar o ordenamento para cada nível de um determinado fator. No exemplo abaixo, a variável `APLA` é ordenada de maneira crescente para cada híbrido.
+
+```{r}
+
+maize %>%
+  group_by(HIB) %>%
+  arrange(MGRA, .by_group = TRUE)
+
+```
+
+
+{{< video https://www.youtube.com/embed/GN4ipJWqWjs >}}
+
+
+# Outras funções úteis (Avançado)
+
+Algumas funções do pacote `metan` podem ser úteis para trabalhar com dados faltantes. Abaixo, alguns exemplos são mostrados.
+
+```{r}
+# seleciona linhas com NA
+maize |> select_rows_na()
+# remove linhas com NA
+maize |> remove_rows_na()
+# substitu NA por 0
+maize |> replace_na()
+# substitui NA pela média da coluna (cuidado!!!)
+maize |> replace_na(replacement = "colmean")
+```
+
+# dplyr vs R base
+
+A tabela a seguir mostra uma tradução condensada entre os verbos `dplyr` e seus equivalentes R base. As seções a seguir descrevem cada operação com mais detalhes. Você aprende mais sobre os verbos dplyr em sua documentação e em For more vignette("one-table").
+
+| dplyr                          | base                                                                                                                                                              |
+|------------------|------------------------------------------------------|
+| `arrange(df, x)`               | `df[order(x), , drop = FALSE]`                                                                                                                                    |
+| `distinct(df, x)`              | `df[!duplicated(x), , drop = FALSE]`, [`unique()`](https://rdrr.io/r/base/unique.html)                                                                            |
+| `filter(df, x)`                | `df[which(x), , drop = FALSE]`, [`subset()`](https://rdrr.io/r/base/subset.html)                                                                                  |
+| `mutate(df, z = x + y)`        | `df$z <- df$x + df$y`, [`transform()`](https://rdrr.io/r/base/transform.html)                                                                                     |
+| `pull(df, 1)`                  | `df[[1]]`                                                                                                                                                         |
+| `pull(df, x)`                  | `df$x`                                                                                                                                                            |
+| `rename(df, y = x)`            | `names(df)[names(df) == "x"] <- "y"`                                                                                                                              |
+| `relocate(df, y)`              | `df[union("y", names(df))]`                                                                                                                                       |
+| `select(df, x, y)`             | `df[c("x", "y")]`, [`subset()`](https://rdrr.io/r/base/subset.html)                                                                                               |
+| `select(df, starts_with("x"))` | `df[grepl(names(df), "^x")]`                                                                                                                                      |
+| `summarise(df, mean(x))`       | `mean(df$x)`, [`tapply()`](https://rdrr.io/r/base/tapply.html), [`aggregate()`](https://rdrr.io/r/stats/aggregate.html), [`by()`](https://rdrr.io/r/base/by.html) |
+| `slice(df, c(1, 2, 5))`        | `df[c(1, 2, 5), , drop = FALSE]`                                                                                                                                  |
+
+# Desafio
+
+::: callout-important
+## 
+
+-   Crie uma variável chamada `MGRA_kg` qual será o resultado em quilogramas da massa de grãos.
+-   Selecione somente as colunas `HIB`, `AMB`, `REP` e `MGRA_Kg`.
+-   Selecione somente as cinco linhas com maior valor de `MGRA_Kg`.
+-   Compute os valores máximos, mínimos e a média destas cinco observações.
+:::
+
+```{=html}
+<div align='center'><a href='https://www.free-website-hit-counter.com'><img src='https://www.free-website-hit-counter.com/c.php?d=9&id=141637&s=2' border='0' alt='Free Website Hit Counter'></a><br / ><small><a href='https://www.free-website-hit-counter.com' title="Free Website Hit Counter">Free website hit counter</a></small></div>
+```

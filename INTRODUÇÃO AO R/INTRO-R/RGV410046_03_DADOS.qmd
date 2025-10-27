@@ -1,0 +1,313 @@
+---
+title: "3. Dados"
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Diretório
+
+```{r include = FALSE}
+knitr::opts_knit$set(root.dir = "D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+```{r eval=FALSE}
+# meu computador (mudar de acordo)
+setwd("D:/Desktop/UFSC/aulas/classes/RGV410046/data")
+```
+
+# Pacotes
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(metan)
+library(DataExplorer)
+```
+
+# Importação
+# Pacote rio
+
+O pacote [`rio`](https://cran.r-project.org/web/packages/rio/index.html) é um pacote R relativamente recente utilizado para importação e exportação de dados. Ele faz suposições sobre o formato do arquivo ([veja os formatos suportados aqui](https://www.rdocumentation.org/packages/rio/versions/0.5.29)), ou seja, adivinha o formato do arquivo que você está tentando importar e, consequentemente, aplica funções de importação apropriadas a esse formato. Tudo isso é feito com a função `import()`.
+
+## Do excel
+
+### Um arquivo
+
+```{r}
+# primeira planilha do excel
+df_excel <- import("df_excel.xlsx")
+df_excel
+
+# uma planilha específica
+# converter para tibble
+df_excel2 <- 
+  import("df_excel.xlsx",
+         sheet = "traits",
+         setclass = "tbl")
+df_excel2
+```
+
+### Vários arquivos
+
+```{r}
+(padrao <- list.files(pattern = "df_excel"))
+df_lista <- import_list(file = padrao)
+str(df_lista)
+df_lista_bind <- import_list(file = padrao, rbind = TRUE)
+df_lista_bind
+```
+
+## Planilha separada por vírgulas
+
+```{r}
+df_csv <- import("df_csv.csv")
+df_csv
+```
+
+## Arquivos de texto
+
+```{r}
+df_txt <- import("df_txt.txt")
+df_txt
+```
+
+## Google sheets
+
+```{r}
+url <- "https://docs.google.com/spreadsheets/d/1b-Sj9l-VwJ-Oy-hFx7j8twsA5oC6-Fr9ukllywfim0E"
+df_gsheet <- import(url, dec = ",")
+df_gsheet
+```
+
+
+
+# Outros formatos (Avançado)
+## SPSS
+
+O arquivo `".sav"` de exemplo foi baixado [deste site](https://lo.unisa.edu.au/mod/book/view.php?id=646443&chapterid=106604)
+
+```{r}
+df_spss <- import("df_spss.sav", setclass = "tbl")
+df_spss
+```
+
+## DBF
+
+O arquivo `".dbf"` de exemplo foi baixado [deste site](https://github.com/infused/dbf/blob/master/spec/fixtures/dbase_83.dbf)
+
+```{r}
+df_dbf <- import("df_dbf.dbf", setclass = "tbl")
+df_dbf
+```
+
+## ODS
+
+```{r}
+df_ods <- import("df_ods.ods")
+df_ods
+```
+
+## Rdata
+
+```{r}
+df_rdata <- readRDS("df_r.RData")
+df_rdata
+```
+
+
+# Funções R base
+
+A função `read.table()` lê um arquivo em formato de tabela (.txt, .csv) e cria um data frame a partir dele.
+
+```{r echo = TRUE, eval = FALSE, message = TRUE, warning = TRUE}
+(dados <- read.table("df_txt.txt", header = TRUE))
+(dados <- read.table("df_csv.csv", header = TRUE, sep = ";"))
+# Argumento header = TRUE indica a existência de cabeçalho
+```
+
+# Rstudio
+
+A forma mais comum do pesquisador digitar seus dados é através de planilhas eletrônicas do Excel. Para carregar esses dados, basta ir em *Import Dataset* na área de trabalho. O passo a passo está descrito abaixo:
+
+![Importando dados de planilhas eletrônicas do Excel - Passo 1](figs/Import.png)
+
+![Importando dados de planilhas eletrônicas do Excel - Passo 2](figs/Import1.png)
+
+![Importando dados de planilhas eletrônicas do Excel - Passo 3](figs/Import2.png)
+
+
+
+# Exportar
+
+```{r}
+# exportar para excel
+export(df_excel, "exportado.xlsx")
+# exportar para txt
+export(df_excel, "exportado.txt")
+# exportar para csv
+export(df_excel, "exportado.csv")
+
+# exportar várias planilhas para um arquivo
+export(
+  list(
+    plan1 = df_excel,
+    plan2 = df_excel2
+  ),
+  file = "minha_lista.xlsx"
+)
+```
+
+# Tutorial Importação e Exportação
+
+{{< video https://www.youtube.com/embed/fVJfL4LFLAM >}}
+
+
+# Dados *tidy*
+
+> Conjuntos de dados organizados são fáceis de manipular, modelar e visualizar, e possuem uma estrutura específica: cada variável é uma coluna, cada observação é uma linha e cada tipo de unidade observacional é uma tabela (Wickham, 2014)[^1]
+
+[^1]: Wickham, Hadley. 2014. "Tidy Data". Journal of Statistical Software 59: 1--23.
+
+## Mesmos dados, diferentes formas
+
+Nesta seção você aprenderá organizar dados no R no formato *tidy*. Colocar seus dados nesse formato requer algum trabalho inicial, mas esse trabalho compensa a longo prazo. Aqui, um foco especial será dado nas funções do pacote `tidyr` e do pacote `metan`. Se você quiser saber mais sobre a teoria por tras dos dados *tidy*, poderá apreciar o artigo [Tidy Data](https://www.jstatsoft.org/article/view/v059i10).
+
+Você pode representar os mesmos dados várias maneiras. O exemplo abaixo mostra os mesmos dados organizados de quatro maneiras diferentes. Cada conjunto de dados mostra os mesmos valores de duas variáveis (ALT_ESP, ALT_PLANT) mensuradas em três híbridos (HIBRIDO), considerando três repetições (BLOCOS).
+
+```{r warning=FALSE, message=FALSE}
+df <- import_list("examples_data.xlsx")
+df$df1
+df$df2
+df$df3
+df$df4
+```
+
+Essas são todas representações dos mesmos dados, mas são completamente diferentes do ponto de vista de uso.
+
+::: callout-warning
+## O que não fazer
+
+Vamos assumir que queiramos computar a média da variável `ALT_PLANT`. Observe os quatro exemplos abaixo e veja qual está correto.
+
+```{r error=TRUE}
+mean(df$df1$ALT_PLANT)
+mean(df$df2$value)
+mean(df$df3$ALT_PLANT_I)
+mean(df$df4$I)
+```
+:::
+
+Um conjunto de dados *tidy* é um conjunto de dados onde as três regras à seguir são respeitadas:
+
+1.  Cada variável deve ter sua própria coluna.
+2.  Cada observação deve ter sua própria linha.
+3.  Cada valor deve ter sua própria célula.
+
+A Figura à seguir mostra as regras visualmente.
+
+![Adaptado de https://r4ds.had.co.nz/tidy-data.html#tidy-data-1](figs/tidy.png)
+
+Após vermos estas regras, percebemos que dos quatro conjuntos apresentados anteriormente, apenas `df` é *tidy*. Ao usarmos conjuntos de dados *tidy* vamos poder aproveitar uma das belezas do R: a possibilidade de aplicar funções à vetores, que neste caso nada mais são do que os valores presentes em cada coluna.
+
+{{< video https://www.youtube.com/embed/TYcKMXwPsuw >}}
+
+
+
+## Padão, padrão, padrão!
+
+### Formatar strings
+
+Um dos maiores equívocos cometidos ao trabalhar com conjuntos de dados e que pode impactar significativamente análises posteriores é a falta de padrão de nomenclatura, tanto em variáveis como string de caracteres. Por exemplo, suponha que tenhamos uma string de caracteres `str = c("Env1", "env 1", "env.1")`, para representar três observações do ambiente "env 1". Por definição, `str` deve representar um nível único, mas na verdade tem três níveis.
+
+```{r}
+str <- c("Env1", "env 1", "env.1")
+str |> factor() |> levels()
+```
+
+A função `tidy_strings()` do pacote `metan` pode ser usada para organizar strings de caracteres colocando todas as palavras em maiúsculas, substituindo qualquer espaço, tabulação, caracteres de pontuação por `_` e colocando `_` entre maiúsculas e minúsculas.
+
+```{r}
+(tidy_str <- tidy_strings(str))
+tidy_str |> factor() |> levels()
+```
+
+Excelente! Agora temos o nível único que deveríamos ter antes.
+
+### Formatar nomes de colunas
+
+O mesmo princípio visto anteriormente se aplica aos nomes das colunas. Como exemplo motivador, vamos utilziar o conjunto de dados `messy`.
+
+```{r message = FALSE, warning=FALSE}
+messy <- df$messy
+names(messy)
+```
+
+Observe que o nome das colunas do conjunto de dados `messy` não segue nenhum padrão. São observados letras minúsculas e maiúsculas, espaços e pontuações. Note o que a presença de espaços resulta na seleção de variáveis.
+
+```{r error=TRUE}
+messy$env
+messy$b 1
+
+# espaços requerem código adicional
+messy$`b 1`
+```
+
+Para formatar os nomes de colunas, podemos utilizar a função `tidy_colnames()` do pacote `metan`.
+
+```{r}
+messy <- tidy_colnames(messy)
+names(messy)
+```
+
+{{< video https://www.youtube.com/embed/Jw_jEPBiAVQ >}}
+
+
+
+
+# Avançado
+## Inspeção
+
+```{r}
+#| out-width: "100%"
+
+
+maize <- df$maize
+plot_intro(maize)
+plot_histogram(maize)
+plot_missing(maize)
+
+# pacote metan
+inspect(maize, plot = TRUE)
+
+```
+
+{{< video https://www.youtube.com/embed/h2ywRFtPZik >}}
+
+
+
+
+## Preencher valores
+
+Observe o seguinte conjunto de dados
+
+![](figs/fill.png)
+
+Na hora da coleta de dados é muito comum observar células mescladas em conjuntos de dados. Observe o que acontece quando estes dados são importados para o software R.
+
+```{r}
+(mesclado <- df$fill)
+
+```
+
+A função `fill()` do pacote `tidyr` pode ser utilizada para preencher valores faltantes. Ela preenche os valores ausentes nas colunas selecionadas. Isso é útil no formato de saída comum em que os valores não são repetidos e são registrados apenas quando são alterados. Par
+
+```{r}
+(preenchido <- fill(mesclado, AMB, HIBRIDO))
+```
+
+{{< video https://www.youtube.com/embed/22n7aZjK-Vw >}}
+```{=html}
+
+<div align='center'><a href='https://www.free-website-hit-counter.com'><img src='https://www.free-website-hit-counter.com/c.php?d=9&id=141635&s=2' border='0' alt='Free Website Hit Counter'></a><br / ><small><a href='https://www.free-website-hit-counter.com' title="Free Website Hit Counter">Free website hit counter</a></small></div>
+```
